@@ -5,16 +5,16 @@ import webbrowser
 import openpyxl
 
 
-def random_film(genero):
+def random_film(genre):
     global window
     global link
 
     while True:
         random_number = randint(0, len(movie_list)+1)
-        if genero == 'Todos':
+        if genre == 'Todos':
             break
         else:
-            if genero == gender_list[random_number]:
+            if genre == genre_list[random_number]:
                 break
     film = movie_list[random_number]
     link = link_list[random_number]
@@ -26,30 +26,30 @@ def add_film_window():
     items = ['Romance', 'Terror', 'Heróis', 'Animação',
              'Ação/Aventura', 'Suspense']
     layout = [[sg.Menu(menu_layout)],
-              [sg.Text('Selecione um gênero:')],
-              [sg.Combo(values=items, key='-GENDER-', size=(20, 1))],
-              [sg.Text('Nome do Filme:'), sg.InputText(key='-FILM-')],
-              [sg.Text('Link do Filme:'), sg.InputText(key='-LINK-')],
-              [sg.Button('Ok'), sg.Button('Cancelar')]]
+              [sg.Text('Select a genre:')],
+              [sg.Combo(values=items, key='-GENRE-', size=(20, 1))],
+              [sg.Text('Movie Name:'), sg.InputText(key='-FILM-')],
+              [sg.Text('Movie Link:'), sg.InputText(key='-LINK-')],
+              [sg.Button('Ok'), sg.Button('cancel')]]
 
-    window = sg.Window('Adicionar Filme', layout)
+    window = sg.Window('Add Movie', layout)
 
     while True:
         event, values = window.read()
-        if event == sg.WIN_CLOSED or event == 'Sair':
+        if event == sg.WIN_CLOSED or event == 'Exit':
             break
-        elif event == 'Cancelar':
+        elif event == 'cancel':
             window.close()
             main_window()
         elif event == 'Ok':
-            gender_value = values['-GENDER-']
+            genre_value = values['-GENRE-']
             film_value = values['-FILM-']
             link_value = values['-LINK-']
 
             if film_value == '':
                 pass
             else:
-                add_movie(gender_value, film_value, link_value)
+                add_movie(genre_value, film_value, link_value)
         menu_bar(event)
 
 
@@ -57,47 +57,47 @@ def open_film_window(movie, link, check, row):
     global table
 
     if check.lower() == '✔️':
-        check_button = sg.Button('Desmarcar visto')
+        check_button = sg.Button('Uncheck')
     else:
-        check_button = sg.Button('Marcar visto')
+        check_button = sg.Button('Check')
 
     layout = [[sg.Text(movie)],
-              [sg.Button('Abrir Link'), check_button, sg.Button('Cancelar')]]
+              [sg.Button('Open Link'), check_button, sg.Button('cancel')]]
 
-    window = sg.Window(f'Filme').Layout(layout)
+    window = sg.Window(f'Movie').Layout(layout)
 
     # Mostra a janela e aguarda a resposta do usuário
     button, _ = window.Read()
 
     # Verifica qual botão foi pressionado
-    if button == 'Abrir Link':
+    if button == 'Open Link':
         try:
             webbrowser.open(link)
         except:
             sg.popup(
-                f"O filme {movie} não possui um link!", title=movie)
+                f"The movie {movie} doesn't have a link.", title=movie)
 
-    elif button == 'Marcar visto':
-        workbook = openpyxl.load_workbook('film_list.xlsx')
+    elif button == 'Check':
+        workbook = openpyxl.load_workbook('movie_list.xlsx')
 
         worksheet = workbook.active
 
         worksheet[f'D{row+2}'] = "Sim"
 
-        workbook.save('film_list.xlsx')
+        workbook.save('movie_list.xlsx')
         att_movies()
-    elif button == 'Desmarcar visto':
-        workbook = openpyxl.load_workbook('film_list.xlsx')
+    elif button == 'Unheck':
+        workbook = openpyxl.load_workbook('movie_list.xlsx')
 
         worksheet = workbook.active
 
         worksheet[f'D{row+2}'] = "Não"
 
-        workbook.save('film_list.xlsx')
+        workbook.save('movie_list.xlsx')
         att_movies()
     else:
         pass
-    df = pd.read_excel("film_list.xlsx")
+    df = pd.read_excel("movie_list.xlsx")
     column_to_remove = df['Link']
     df = df.drop(columns=['Link'])
 
@@ -107,18 +107,18 @@ def open_film_window(movie, link, check, row):
 
 
 def data_check_list(data_list):
-    for linha in data_list:
-        if linha[2].lower() == 'sim':  # verifique o valor da segunda coluna
-            linha.insert(2, '✔️')
+    for row in data_list:
+        if row[2].lower() == 'sim':  # verifique o valor da segunda coluna
+            row.insert(2, '✔️')
         else:
-            linha.insert(2, '☐')
+            row.insert(2, '☐')
     return data_list
 
 
 def list_window():
     global window
 
-    df = pd.read_excel("film_list.xlsx")
+    df = pd.read_excel("movie_list.xlsx")
     column_to_remove = df['Link']
     df = df.drop(columns=['Link'])
 
@@ -127,8 +127,8 @@ def list_window():
 
     layout = [
         [sg.Menu(menu_layout)],
-        [sg.InputText(key='-SEARCH-'), sg.Button('Pesquisar'),
-         sg.Button('Limpar')],
+        [sg.InputText(key='-SEARCH-'), sg.Button('Search'),
+         sg.Button('Clean')],
         [sg.Table(
             values=data,
             headings=df.columns.tolist(),
@@ -142,7 +142,7 @@ def list_window():
         )]
     ]
 
-    window = sg.Window("Tabela de Filmes", auto_size_text=True, auto_size_buttons=True,
+    window = sg.Window("Movie Table", auto_size_text=True, auto_size_buttons=True,
                        grab_anywhere=False, resizable=True,
                        layout=layout, finalize=True)
     window['-TABLE-'].expand(True, True)
@@ -150,7 +150,7 @@ def list_window():
     while True:
         event, values = window.read()
 
-        if event == 'Sair' or event == sg.WIN_CLOSED:
+        if event == 'Exit' or event == sg.WIN_CLOSED:
             break
         if event == '-TABLE-':
 
@@ -163,7 +163,7 @@ def list_window():
                     table_movie, table_link, table_check, selected_row)
                 data = data_check_list(data_list)
                 window['-TABLE-'].update(values=data)
-        elif event == 'Pesquisar':
+        elif event == 'Search':
 
             search_term = values['-SEARCH-']
             if search_term:
@@ -176,7 +176,7 @@ def list_window():
                 data_list = df.values.tolist()
 
                 window['-TABLE-'].update(values=data_list)
-        elif event == 'Limpar':
+        elif event == 'Clean':
             data_list = df.values.tolist()
 
             window['-TABLE-'].update(values=data_list)
@@ -195,65 +195,63 @@ def main_window():
 
     # Define the layout of your window
     layout = [[sg.Menu(menu_layout)],
-              [sg.Text('Selecione um gênero:')],
-              [sg.Combo(values=items, key='-GENDER-', size=(20, 1)),
-               sg.Button('Sortear')],
+              [sg.Text('Select a Movie Genre:')],
+              [sg.Combo(values=items, key='-GENRE-', size=(20, 1)),
+               sg.Button('raffle')],
 
-              [sg.Text("Filme:"), sg.Output(size=(50, 1), key="-FILM-")],
+              [sg.Text("Movie:"), sg.Output(size=(50, 1), key="-FILM-")],
               [sg.Button('Open link')]]
 
     # Create the window
-    window = sg.Window('Sorteador de Filmes', layout)
+    window = sg.Window('Movie_Raffle', layout)
 
     while True:
         event, values = window.read()
-        selected_item = values['-GENDER-']
-
-        if event == 'Sortear':
+        selected_item = values['-GENRE-']
+        if event == sg.WIN_CLOSED or event == 'Exit':
+            break
+        elif event == 'raffle':
             if selected_item != '':
                 random_film(selected_item)
         elif event == 'Open link':
             if link is None:
                 pass
             else:
-
                 webbrowser.open(link)
-        elif event == sg.WIN_CLOSED or event == 'Sair':
-            break
-        menu_bar(event)
 
+        menu_bar(event)
     # Close the window
     window.close()
 
 
-def add_movie(gender, film, link):
+def add_movie(genre, film, link):
 
     for movie in movie_list:
         if movie.lower() == film.lower():
-            sg.popup(f'O filme ({film}) ja está na lista!')
+            sg.popup(f'The movie ({film}) is already on the list.')
             return
 
     row = len(movie_list) + 2
     # Load the existing workbook
-    workbook = openpyxl.load_workbook('film_list.xlsx')
+    workbook = openpyxl.load_workbook('movie_list.xlsx')
 
     # Select the worksheet you want to add data to
     worksheet = workbook.active
 
     # Add data to the worksheet
-    worksheet[f'A{row}'] = gender
+    worksheet[f'A{row}'] = genre
     worksheet[f'B{row}'] = film.replace('\n', '').title()
     worksheet[f'C{row}'] = link
     worksheet[f'D{row}'] = 'Não'
 
     # Save the changes to the workbook
     try:
-        workbook.save('film_list.xlsx')
+        workbook.save('movie_list.xlsx')
         att_movies()
 
-        sg.popup(f'O filme ({film.title()}) foi adicionado!')
+        sg.popup(f'The movie ({film.title()}) was added.')
     except (PermissionError):
-        sg.popup('É necessário fechar o arquivo Excel!')
+        sg.popup('It is necessary to close the Excel file..')
     except Exception as e:
         sg.popup(e)
 
@@ -263,35 +261,35 @@ def edit_movie_window():
     movies = []
     for movie in movie_list:
         movies.append(movie)
-    genders = ['Romance', 'Terror', 'Heróis', 'Animação',
-               'Ação/Aventura', 'Suspense']
+    genres = ['Romance', 'Terror', 'Heróis', 'Animação',
+              'Ação/Aventura', 'Suspense']
     layout = [[sg.Menu(menu_layout)],
-              [sg.Text('Filme que deseja editar:')],
+              [sg.Text('Movie you want to edit:')],
               [sg.Combo(values=movies, key='-COMBO-', size=(50, 1))],
-              [sg.Text('Editar o Gênero do Filme:')],
-              [sg.Combo(values=genders, key='-GENDER-', size=(20, 1))],
-              [sg.Text('Editar Nome do Filme:'), sg.InputText(key='-FILM-')],
-              [sg.Text('Editar Link do Filme:'), sg.InputText(key='-LINK-')],
-              [sg.Button('Ok'), sg.Button('Cancelar')]]
+              [sg.Text('Edit Movie Genre:')],
+              [sg.Combo(values=genres, key='-GENRE-', size=(20, 1))],
+              [sg.Text('Edit Movie Name:'), sg.InputText(key='-FILM-')],
+              [sg.Text('Edit Movie Link:'), sg.InputText(key='-LINK-')],
+              [sg.Button('Ok'), sg.Button('cancel')]]
 
-    window = sg.Window('Editar Filme', layout)
+    window = sg.Window('Edit Movie', layout)
 
     while True:
         event, values = window.read()
-        if event == sg.WIN_CLOSED or event == 'Sair':
+        if event == sg.WIN_CLOSED or event == 'Exit':
             break
-        elif event == 'Cancelar':
+        elif event == 'cancel':
             window.close()
             main_window()
         elif event == 'Ok':
             selected_movie = values['-COMBO-']
-            gender_value = values['-GENDER-']
+            genre_value = values['-GENRE-']
             film_value = values['-FILM-']
             link_value = values['-LINK-']
 
             if selected_movie != '':
-                if film_value != '' or link_value != '' or gender_value != '':
-                    edit_movie(selected_movie, gender_value,
+                if film_value != '' or link_value != '' or genre_value != '':
+                    edit_movie(selected_movie, genre_value,
                                film_value, link_value)
                     window['-COMBO-'].update()
 
@@ -305,20 +303,20 @@ def delete_movie_window():
     movies = []
     for movie in movie_list:
         movies.append(movie)
-    genders = ['Romance', 'Terror', 'Heróis', 'Animação',
-               'Ação/Aventura', 'Suspense']
+    genres = ['Romance', 'Terror', 'Heróis', 'Animação',
+              'Ação/Aventura', 'Suspense']
     layout = [[sg.Menu(menu_layout)],
-              [sg.Text('Filme que deseja Deletar:')],
+              [sg.Text('Movie you want to Delete:')],
               [sg.Combo(values=movies, key='-COMBO-', size=(50, 1))],
-              [sg.Button('Ok'), sg.Button('Cancelar')]]
+              [sg.Button('Ok'), sg.Button('cancel')]]
 
-    window = sg.Window('Deletar Filme', layout)
+    window = sg.Window('Delet Movie', layout)
 
     while True:
         event, values = window.read()
-        if event == sg.WIN_CLOSED or event == 'Sair':
+        if event == sg.WIN_CLOSED or event == 'Exit':
             break
-        elif event == 'Cancelar':
+        elif event == 'cancel':
             window.close()
             main_window()
         elif event == 'Ok':
@@ -330,8 +328,8 @@ def delete_movie_window():
     window.close()
 
 
-def edit_movie(selected_movie, gender, film, link):
-    workbook = openpyxl.load_workbook('film_list.xlsx')
+def edit_movie(selected_movie, genre, film, link):
+    workbook = openpyxl.load_workbook('movie_list.xlsx')
 
     # Select the worksheet you want to add data to
     worksheet = workbook.active
@@ -341,8 +339,8 @@ def edit_movie(selected_movie, gender, film, link):
     for index, movie in enumerate(movie_list):
         if movie.lower() == selected_movie.lower():
             index += 2
-            if gender != '':
-                worksheet[f'A{index}'] = gender
+            if genre != '':
+                worksheet[f'A{index}'] = genre
             if film != '':
                 worksheet[f'B{index}'] = film.replace('\n', '').title()
             if link != '':
@@ -350,30 +348,30 @@ def edit_movie(selected_movie, gender, film, link):
 
     # Save the changes to the workbook
     try:
-        workbook.save('film_list.xlsx')
+        workbook.save('movie_list.xlsx')
         att_movies()
-        sg.popup(f'O filme ({selected_movie.title()}) foi Editado!')
+        sg.popup(f'The movie({selected_movie.title()}) was edited.')
     except (PermissionError):
-        sg.popup('É necessário fechar o arquivo Excel!')
+        sg.popup('It is necessary to close the Excel file.')
     except Exception as e:
         sg.popup(e)
 
 
 def delete_movie(selected_movie):
-    workbook = openpyxl.load_workbook('film_list.xlsx')
+    workbook = openpyxl.load_workbook('movie_list.xlsx')
 
     for index, movie in enumerate(movie_list):
         if movie.lower() == selected_movie.lower():
             worksheet = workbook['List']
-            # Excluir a linha
+            # Delete a linha
             worksheet.delete_rows(index+2)
 
     try:
-        workbook.save('film_list.xlsx')
+        workbook.save('movie_list.xlsx')
         att_movies()
-        sg.popup(f'O filme ({selected_movie.title()}) foi Deletado!')
+        sg.popup(f'The movie ({selected_movie.title()}) has been Deleted.')
     except (PermissionError):
-        sg.popup('É necessário fechar o arquivo Excel!')
+        sg.popup('It is necessary to close the Excel file.')
     except Exception as e:
         sg.popup(e)
 
@@ -381,54 +379,54 @@ def delete_movie(selected_movie):
 def att_movies():
     global table
     global movie_list
-    global gender_list
+    global genre_list
     global link_list
 
     try:
-        df = pd.read_excel("film_list.xlsx", sheet_name='List')
+        df = pd.read_excel("movie_list.xlsx", sheet_name='List')
         df_sorted = df.sort_values('Filme')
-        df_sorted.to_excel('film_list.xlsx', index=False, sheet_name='List')
+        df_sorted.to_excel('movie_list.xlsx', index=False, sheet_name='List')
 
-        table = pd.read_excel("film_list.xlsx", None)
+        table = pd.read_excel("movie_list.xlsx", None)
 
         movie_list = table['List']['Filme']
-        gender_list = table['List']['Gênero']
+        genre_list = table['List']['Gênero']
         link_list = table['List']['Link']
     except (PermissionError):
-        sg.popup('É necessário fechar o arquivo Excel!')
+        sg.popup('It is necessary to close the Excel file.')
     except Exception as e:
         sg.popup(e)
 
 
 def menu_bar(event):
-    if event == 'Adicionar':
+    if event == 'Add':
         window.close()
         add_film_window()
-    elif event == 'Sorteador':
+    elif event == 'Raffle':
         window.close()
         main_window()
-    elif event == 'Lista':
+    elif event == 'List':
         window.close()
         list_window()
-    elif event == 'Editar':
+    elif event == 'Edit':
         window.close()
         edit_movie_window()
-    elif event == 'Excluir':
+    elif event == 'Delete':
         window.close()
         delete_movie_window()
     elif event == 'About':
         sg.popup('Produced by: Reinier Soares')
 
 
-table = pd.read_excel("film_list.xlsx", None)
+table = pd.read_excel("movie_list.xlsx", None)
 
 menu_layout = [
-    ['Filme', ['Sorteador', 'Lista', 'Adicionar', 'Editar', 'Excluir', 'Sair']], ['Help', ['About']]]
+    ['Movie', ['Raffle', 'Add', 'List',  'Edit', 'Delete', 'Exit']], ['Help', ['About']]]
 
 window = None
 link = None
 movie_list = table['List']['Filme']
-gender_list = table['List']['Gênero']
+genre_list = table['List']['Gênero']
 link_list = table['List']['Link']
 
 main_window()
