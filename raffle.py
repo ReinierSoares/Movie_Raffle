@@ -86,7 +86,7 @@ def open_film_window(movie, link, check, row):
 
         workbook.save('movie_list.xlsx')
         att_movies()
-    elif button == 'Unheck':
+    elif button == 'Uncheck':
         workbook = openpyxl.load_workbook('movie_list.xlsx')
 
         worksheet = workbook.active
