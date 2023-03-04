@@ -78,26 +78,26 @@ def open_film_window(movie, link, check, row):
                 f"The movie {movie} doesn't have a link.", title=movie)
 
     elif button == 'Check':
-        workbook = openpyxl.load_workbook('movie_list.xlsx')
+        workbook = openpyxl.load_workbook('film_list.xlsx')
 
         worksheet = workbook.active
 
         worksheet[f'D{row+2}'] = "Sim"
 
-        workbook.save('movie_list.xlsx')
+        workbook.save('film_list.xlsx')
         att_movies()
     elif button == 'Uncheck':
-        workbook = openpyxl.load_workbook('movie_list.xlsx')
+        workbook = openpyxl.load_workbook('film_list.xlsx')
 
         worksheet = workbook.active
 
         worksheet[f'D{row+2}'] = "Não"
 
-        workbook.save('movie_list.xlsx')
+        workbook.save('film_list.xlsx')
         att_movies()
     else:
         pass
-    df = pd.read_excel("movie_list.xlsx")
+    df = pd.read_excel("film_list.xlsx")
     column_to_remove = df['Link']
     df = df.drop(columns=['Link'])
 
@@ -118,7 +118,7 @@ def data_check_list(data_list):
 def list_window():
     global window
 
-    df = pd.read_excel("movie_list.xlsx")
+    df = pd.read_excel("film_list.xlsx")
     column_to_remove = df['Link']
     df = df.drop(columns=['Link'])
 
@@ -147,6 +147,7 @@ def list_window():
                        layout=layout, finalize=True)
     window['-TABLE-'].expand(True, True)
     window['-TABLE-'].table_frame.pack(expand=True, fill='both')
+    search = False
     while True:
         event, values = window.read()
 
@@ -155,10 +156,16 @@ def list_window():
         if event == '-TABLE-':
 
             if values['-TABLE-']:
-                selected_row = values['-TABLE-'][0]
-                table_movie = data_list[selected_row][1]
-                table_link = column_to_remove[selected_row]
-                table_check = data_list[selected_row][2]
+                if search is True:
+                    selected_row = index
+                else:
+                    selected_row = values['-TABLE-'][0]
+                try:
+                    table_movie = data_list[selected_row][1]
+                    table_link = column_to_remove[selected_row]
+                    table_check = data_list[selected_row][2]
+                except Exception as e:
+                    sg.popup(e)
                 data_list = open_film_window(
                     table_movie, table_link, table_check, selected_row)
                 data = data_check_list(data_list)
@@ -167,22 +174,35 @@ def list_window():
 
             search_term = values['-SEARCH-']
             if search_term:
-                filtered_data = df[df.apply(lambda x: search_term.lower(
-                ) in x.astype(str).str.lower().values.tolist(), axis=1)]
-                data_list = filtered_data.values.tolist()
-
-                window['-TABLE-'].update(values=data_list)
+                index, filtered_data = search_in_table(df, search_term)
+                data_search = filtered_data.values.tolist()
+                data_search = data_check_list(data_search)
+                window['-TABLE-'].update(values=data_search)
+                search = True
             else:
                 data_list = df.values.tolist()
-
+                data_list = data_check_list(data_list)
+                search = False
                 window['-TABLE-'].update(values=data_list)
         elif event == 'Clean':
             data_list = df.values.tolist()
-
+            data_list = data_check_list(data_list)
+            search = False
             window['-TABLE-'].update(values=data_list)
+            window['-SEARCH-'].update("")
         menu_bar(event)
 
     window.close()
+
+
+def search_in_table(df, search_term):
+    filtered_data = df[df.apply(lambda x: search_term.lower(
+    ) in x.astype(str).str.lower().values.tolist(), axis=1)]
+    if not filtered_data.empty:
+        index = filtered_data.index[0]
+        return index, filtered_data
+    else:
+        return None, None
 
 
 def main_window():
@@ -197,7 +217,7 @@ def main_window():
     layout = [[sg.Menu(menu_layout)],
               [sg.Text('Select a Movie Genre:')],
               [sg.Combo(values=items, key='-GENRE-', size=(20, 1)),
-               sg.Button('raffle')],
+              sg.Button('raffle')],
 
               [sg.Text("Movie:"), sg.Output(size=(50, 1), key="-FILM-")],
               [sg.Button('Open link')]]
@@ -233,7 +253,7 @@ def add_movie(genre, film, link):
 
     row = len(movie_list) + 2
     # Load the existing workbook
-    workbook = openpyxl.load_workbook('movie_list.xlsx')
+    workbook = openpyxl.load_workbook('film_list.xlsx')
 
     # Select the worksheet you want to add data to
     worksheet = workbook.active
@@ -246,7 +266,7 @@ def add_movie(genre, film, link):
 
     # Save the changes to the workbook
     try:
-        workbook.save('movie_list.xlsx')
+        workbook.save('film_list.xlsx')
         att_movies()
 
         sg.popup(f'The movie ({film.title()}) was added.')
@@ -329,7 +349,7 @@ def delete_movie_window():
 
 
 def edit_movie(selected_movie, genre, film, link):
-    workbook = openpyxl.load_workbook('movie_list.xlsx')
+    workbook = openpyxl.load_workbook('film_list.xlsx')
 
     # Select the worksheet you want to add data to
     worksheet = workbook.active
@@ -348,7 +368,7 @@ def edit_movie(selected_movie, genre, film, link):
 
     # Save the changes to the workbook
     try:
-        workbook.save('movie_list.xlsx')
+        workbook.save('film_list.xlsx')
         att_movies()
         sg.popup(f'The movie({selected_movie.title()}) was edited.')
     except (PermissionError):
@@ -358,7 +378,7 @@ def edit_movie(selected_movie, genre, film, link):
 
 
 def delete_movie(selected_movie):
-    workbook = openpyxl.load_workbook('movie_list.xlsx')
+    workbook = openpyxl.load_workbook('film_list.xlsx')
 
     for index, movie in enumerate(movie_list):
         if movie.lower() == selected_movie.lower():
@@ -367,7 +387,7 @@ def delete_movie(selected_movie):
             worksheet.delete_rows(index+2)
 
     try:
-        workbook.save('movie_list.xlsx')
+        workbook.save('film_list.xlsx')
         att_movies()
         sg.popup(f'The movie ({selected_movie.title()}) has been Deleted.')
     except (PermissionError):
@@ -383,11 +403,11 @@ def att_movies():
     global link_list
 
     try:
-        df = pd.read_excel("movie_list.xlsx", sheet_name='List')
+        df = pd.read_excel("film_list.xlsx", sheet_name='List')
         df_sorted = df.sort_values('Filme')
-        df_sorted.to_excel('movie_list.xlsx', index=False, sheet_name='List')
+        df_sorted.to_excel('film_list.xlsx', index=False, sheet_name='List')
 
-        table = pd.read_excel("movie_list.xlsx", None)
+        table = pd.read_excel("film_list.xlsx", None)
 
         movie_list = table['List']['Filme']
         genre_list = table['List']['Gênero']
@@ -418,7 +438,7 @@ def menu_bar(event):
         sg.popup('Produced by: Reinier Soares')
 
 
-table = pd.read_excel("movie_list.xlsx", None)
+table = pd.read_excel("film_list.xlsx", None)
 
 menu_layout = [
     ['Movie', ['Raffle', 'Add', 'List',  'Edit', 'Delete', 'Exit']], ['Help', ['About']]]
