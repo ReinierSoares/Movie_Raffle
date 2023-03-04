@@ -117,20 +117,21 @@ def data_check_list(data_list):
 
 def list_window():
     global window
+    global data_list
 
     df = pd.read_excel("film_list.xlsx")
     column_to_remove = df['Link']
     df = df.drop(columns=['Link'])
 
     data_list = df.values.tolist()
-    data = data_check_list(data_list)
+    data_list = data_check_list(data_list)
 
     layout = [
         [sg.Menu(menu_layout)],
         [sg.InputText(key='-SEARCH-'), sg.Button('Search'),
          sg.Button('Clean')],
         [sg.Table(
-            values=data,
+            values=data_list,
             headings=df.columns.tolist(),
             max_col_width=70,
             auto_size_columns=True,
@@ -168,25 +169,21 @@ def list_window():
                     sg.popup(e)
                 data_list = open_film_window(
                     table_movie, table_link, table_check, selected_row)
-                data = data_check_list(data_list)
-                window['-TABLE-'].update(values=data)
+                data_list = data_check_list(data_list)
+                window['-TABLE-'].update(values=data_list)
         elif event == 'Search':
 
             search_term = values['-SEARCH-']
             if search_term:
-                index, filtered_data = search_in_table(df, search_term)
+                index, filtered_data = search_in_table(search_term)
                 data_search = filtered_data.values.tolist()
                 data_search = data_check_list(data_search)
                 window['-TABLE-'].update(values=data_search)
                 search = True
             else:
-                data_list = df.values.tolist()
-                data_list = data_check_list(data_list)
                 search = False
                 window['-TABLE-'].update(values=data_list)
         elif event == 'Clean':
-            data_list = df.values.tolist()
-            data_list = data_check_list(data_list)
             search = False
             window['-TABLE-'].update(values=data_list)
             window['-SEARCH-'].update("")
@@ -195,7 +192,10 @@ def list_window():
     window.close()
 
 
-def search_in_table(df, search_term):
+def search_in_table(search_term):
+    df = pd.read_excel("film_list.xlsx")
+    column_to_remove = df['Link']
+    df = df.drop(columns=['Link'])
     filtered_data = df[df.apply(lambda x: search_term.lower(
     ) in x.astype(str).str.lower().values.tolist(), axis=1)]
     if not filtered_data.empty:
@@ -448,5 +448,5 @@ link = None
 movie_list = table['List']['Filme']
 genre_list = table['List']['Gênero']
 link_list = table['List']['Link']
-
+data_list = None
 main_window()
