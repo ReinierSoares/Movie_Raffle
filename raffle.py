@@ -78,26 +78,26 @@ def open_film_window(movie, link, check, row):
                 f"The movie {movie} doesn't have a link.", title=movie)
 
     elif button == 'Check':
-        workbook = openpyxl.load_workbook('film_list.xlsx')
+        workbook = openpyxl.load_workbook('movie_list.xlsx')
 
         worksheet = workbook.active
 
         worksheet[f'D{row+2}'] = "Sim"
 
-        workbook.save('film_list.xlsx')
+        workbook.save('movie_list.xlsx')
         att_movies()
     elif button == 'Uncheck':
-        workbook = openpyxl.load_workbook('film_list.xlsx')
+        workbook = openpyxl.load_workbook('movie_list.xlsx')
 
         worksheet = workbook.active
 
         worksheet[f'D{row+2}'] = "Não"
 
-        workbook.save('film_list.xlsx')
+        workbook.save('movie_list.xlsx')
         att_movies()
     else:
         pass
-    df = pd.read_excel("film_list.xlsx")
+    df = pd.read_excel("movie_list.xlsx")
     column_to_remove = df['Link']
     df = df.drop(columns=['Link'])
 
@@ -119,7 +119,7 @@ def list_window():
     global window
     global data_list
 
-    df = pd.read_excel("film_list.xlsx")
+    df = pd.read_excel("movie_list.xlsx")
     column_to_remove = df['Link']
     df = df.drop(columns=['Link'])
 
@@ -193,7 +193,7 @@ def list_window():
 
 
 def search_in_table(search_term):
-    df = pd.read_excel("film_list.xlsx")
+    df = pd.read_excel("movie_list.xlsx")
     column_to_remove = df['Link']
     df = df.drop(columns=['Link'])
     filtered_data = df[df.apply(lambda x: search_term.lower(
@@ -253,7 +253,7 @@ def add_movie(genre, film, link):
 
     row = len(movie_list) + 2
     # Load the existing workbook
-    workbook = openpyxl.load_workbook('film_list.xlsx')
+    workbook = openpyxl.load_workbook('movie_list.xlsx')
 
     # Select the worksheet you want to add data to
     worksheet = workbook.active
@@ -266,7 +266,7 @@ def add_movie(genre, film, link):
 
     # Save the changes to the workbook
     try:
-        workbook.save('film_list.xlsx')
+        workbook.save('movie_list.xlsx')
         att_movies()
 
         sg.popup(f'The movie ({film.title()}) was added.')
@@ -349,7 +349,7 @@ def delete_movie_window():
 
 
 def edit_movie(selected_movie, genre, film, link):
-    workbook = openpyxl.load_workbook('film_list.xlsx')
+    workbook = openpyxl.load_workbook('movie_list.xlsx')
 
     # Select the worksheet you want to add data to
     worksheet = workbook.active
@@ -368,7 +368,7 @@ def edit_movie(selected_movie, genre, film, link):
 
     # Save the changes to the workbook
     try:
-        workbook.save('film_list.xlsx')
+        workbook.save('movie_list.xlsx')
         att_movies()
         sg.popup(f'The movie({selected_movie.title()}) was edited.')
     except (PermissionError):
@@ -378,7 +378,7 @@ def edit_movie(selected_movie, genre, film, link):
 
 
 def delete_movie(selected_movie):
-    workbook = openpyxl.load_workbook('film_list.xlsx')
+    workbook = openpyxl.load_workbook('movie_list.xlsx')
 
     for index, movie in enumerate(movie_list):
         if movie.lower() == selected_movie.lower():
@@ -387,7 +387,7 @@ def delete_movie(selected_movie):
             worksheet.delete_rows(index+2)
 
     try:
-        workbook.save('film_list.xlsx')
+        workbook.save('movie_list.xlsx')
         att_movies()
         sg.popup(f'The movie ({selected_movie.title()}) has been Deleted.')
     except (PermissionError):
@@ -403,11 +403,11 @@ def att_movies():
     global link_list
 
     try:
-        df = pd.read_excel("film_list.xlsx", sheet_name='List')
+        df = pd.read_excel("movie_list.xlsx", sheet_name='List')
         df_sorted = df.sort_values('Filme')
-        df_sorted.to_excel('film_list.xlsx', index=False, sheet_name='List')
+        df_sorted.to_excel('movie_list.xlsx', index=False, sheet_name='List')
 
-        table = pd.read_excel("film_list.xlsx", None)
+        table = pd.read_excel("movie_list.xlsx", None)
 
         movie_list = table['List']['Filme']
         genre_list = table['List']['Gênero']
@@ -438,7 +438,7 @@ def menu_bar(event):
         sg.popup('Produced by: Reinier Soares')
 
 
-table = pd.read_excel("film_list.xlsx", None)
+table = pd.read_excel("movie_list.xlsx", None)
 
 menu_layout = [
     ['Movie', ['Raffle', 'Add', 'List',  'Edit', 'Delete', 'Exit']], ['Help', ['About']]]
