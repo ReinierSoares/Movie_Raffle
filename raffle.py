@@ -253,7 +253,7 @@ def main_window():
                 selected_item = values['-GENDER-']
                 check_movie = values['-CHECK-']
                 if selected_item != '':
-                    # random_film(selected_item, check_movie)
+                    random_film(selected_item, check_movie)
                     window.refresh()
 
             elif event == 'Open link':
@@ -619,7 +619,7 @@ menu_layout = [
     ['Tema', ['Padrão', 'Claro', 'Escuro']],
     ['Ajuda', ['Sobre']]]
 
-file_path = 'lista_de_filmes.xlsx'
+file_path = 'movie_list.xlsx'
 try:
     table = pd.read_excel(file_path, None)
 except (PermissionError):
