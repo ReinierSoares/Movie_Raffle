@@ -44,7 +44,7 @@ def add_film_window():
               [sg.Text('Link do Filme:'), sg.InputText(key='-LINK-')],
               [sg.Button('Ok'), sg.Button('Cancelar')]]
 
-    window = sg.Window('Adicionar Filme', layout)
+    window = sg.Window('Adicionar Filme', layout, use_ttk_buttons=True)
 
     while True:
         event, values = window.read()
@@ -79,8 +79,7 @@ def open_film_window(movie, link, check, row):
     layout = [[sg.Text(movie)],
               [sg.Button('Abrir Link'), check_button, sg.Button('Cancelar')]]
 
-    window = sg.Window(f'Filme').Layout(layout)
-
+    window = sg.Window('Filme', layout, use_ttk_buttons=True)
     # Mostra a janela e aguarda a resposta do usuário
     button, _ = window.Read()
 
@@ -163,7 +162,7 @@ def list_window():
 
     window = sg.Window("Tabela de Filmes", auto_size_text=True, auto_size_buttons=True,
                        grab_anywhere=False, resizable=True,
-                       layout=layout, finalize=True)
+                       layout=layout, finalize=True, use_ttk_buttons=True)
     window['-TABLE-'].expand(True, True)
     window['-TABLE-'].table_frame.pack(expand=True, fill='both')
     search = False
@@ -243,7 +242,8 @@ def main_window():
               [sg.Button('Open link')]]
 
     # Create the window
-    window = sg.Window('Sorteador de Filmes', layout, finalize=True)
+    window = sg.Window('Sorteador de Filmes', layout,
+                       finalize=True, use_ttk_buttons=True)
 
     while True:
         event, values = window.read()
@@ -327,7 +327,7 @@ def edit_movie_window():
               [sg.Text('Editar Link do Filme:'), sg.InputText(key='-LINK-')],
               [sg.Button('Ok'), sg.Button('Cancelar')]]
 
-    window = sg.Window('Editar Filme', layout)
+    window = sg.Window('Editar Filme', layout, use_ttk_buttons=True)
 
     while True:
         event, values = window.read()
@@ -368,7 +368,7 @@ def delete_movie_window():
               [sg.Combo(values=movies, key='-COMBO-', size=(50, 1))],
               [sg.Button('Ok'), sg.Button('Cancelar')]]
 
-    window = sg.Window('Deletar Filme', layout)
+    window = sg.Window('Deletar Filme', layout, use_ttk_buttons=True)
 
     while True:
         event, values = window.read()
@@ -490,7 +490,7 @@ def open_file_window():
             key='_FILEBROWSER_'), sg.FileBrowse()],
         [sg.Button('Salvar')]]
 
-    window = sg.Window('Abrir planilha', layout)
+    window = sg.Window('Abrir planilha', layout, use_ttk_buttons=True)
 
     while True:
         event, values = window.read()
@@ -526,7 +526,7 @@ def new_file_window():
             key='_FOLDERBROWSER_'), sg.FolderBrowse()],
         [sg.Button('Salvar')]]
 
-    window = sg.Window('Criar planilha', layout)
+    window = sg.Window('Criar planilha', layout, use_ttk_buttons=True)
 
     while True:
         event, values = window.read()
@@ -630,7 +630,7 @@ except Exception as e:
         [sg.Button('Criar'), sg.Button('Selecionar')]
     ]
 
-    window = sg.Window('Arquivo não encontrado', layout)
+    window = sg.Window('Arquivo não encontrado', layout, use_ttk_buttons=True)
 
     event, values = window.read()
 
