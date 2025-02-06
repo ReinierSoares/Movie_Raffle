@@ -5,7 +5,6 @@ import webbrowser
 import openpyxl
 import os
 
-
 def random_film(genero, check):
     global window
     global link
@@ -213,8 +212,7 @@ def search_in_table(search_term):
     df = open_excel()
     column_to_remove = df['Link']
     df = df.drop(columns=['Link'])
-    filtered_data = df[df.apply(lambda x: search_term.lower(
-    ) in x.astype(str).str.lower().values.tolist(), axis=1)]
+    filtered_data = df[df.applymap(lambda x: search_term.lower() in str(x).lower()).any(axis=1)]
     if not filtered_data.empty:
         index = filtered_data.index[0]
         return index, filtered_data
@@ -640,7 +638,8 @@ except Exception as e:
     elif event == 'Selecionar':
         window.close()
         open_file_window()
+        
+if __name__ == '__main__':
+    att_movies()
 
-att_movies()
-
-main_window()
+    main_window()
